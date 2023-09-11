@@ -68,6 +68,7 @@ buildConcourseResourceDocker slack-alert $SLACK_ALERT_RESOURCE_VERSION false
 #
 # Concourse image build
 docker buildx build \
+  --progress=plain \
   --build-arg concourse_version=$CONCOURSE_VERSION \
   --build-arg cni_plugins_version=$CNI_PLUGINS_VERSION \
   --build-arg guardian_commit_id=$GUARDIAN_COMMIT_ID \

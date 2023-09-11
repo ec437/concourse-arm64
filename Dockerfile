@@ -29,7 +29,7 @@ ADD dist/elm-v${elm_version}-arm64.tar.gz /usr/local/bin
 #
 # Build concourse web
 ARG concourse_version
-RUN git clone --branch v${concourse_version} https://github.com/concourse/concourse /yarn/concourse
+RUN git clone --branch v${concourse_version} https://github.com/ec437/concourse /yarn/concourse
 WORKDIR /yarn/concourse
 
 # Patch the package json since we have elm pre-installed
@@ -58,7 +58,7 @@ RUN go build -ldflags "-extldflags '-static'" -mod=vendor -o gdn ./cmd/gdn
 WORKDIR /go/guardian/cmd/init
 RUN gcc -static -o init init.c ignore_sigchild.c
 
-RUN git clone --branch v${concourse_version} https://github.com/concourse/concourse /go/concourse
+RUN git clone --branch v${concourse_version} https://github.com/ec437/concourse /go/concourse
 WORKDIR /go/concourse
 RUN go build -v -ldflags "-extldflags '-static' -X github.com/concourse/concourse.Version=${concourse_version}" ./cmd/concourse
 
@@ -71,7 +71,7 @@ RUN ./build_linux.sh
 
 #
 # Generate the final image
-FROM ubuntu:bionic AS ubuntu
+FROM ubuntu:20.04 AS ubuntu
 
 ARG concourse_version
 ARG concourse_docker_entrypoint_commit_id
@@ -96,7 +96,7 @@ ENV CONCOURSE_WEB_PUBLIC_DIR          /public
 VOLUME /worker-state
 
 RUN apt-get update && apt-get install -y \
-    btrfs-tools \
+    btrfs-progs \
     ca-certificates \
     containerd \
     iptables \
@@ -106,13 +106,13 @@ RUN apt-get update && apt-get install -y \
     curl
 
 # Add fly CLI versions
-RUN mkdir -p /usr/local/concourse/fly-assets && \
-      curl -sL https://github.com/concourse/concourse/releases/download/v${concourse_version}/fly-${concourse_version}-darwin-amd64.tgz \
-         -o /usr/local/concourse/fly-assets/fly-darwin-amd64.tgz && \
-      curl -sL https://github.com/concourse/concourse/releases/download/v${concourse_version}/fly-${concourse_version}-linux-amd64.tgz \
-         -o /usr/local/concourse/fly-assets/fly-linux-amd64.tgz && \
-      curl -sL https://github.com/concourse/concourse/releases/download/v${concourse_version}/fly-${concourse_version}-windows-amd64.zip \
-         -o /usr/local/concourse/fly-assets/fly-windows-amd64.zip
+#RUN mkdir -p /usr/local/concourse/fly-assets && \
+#      curl -sL https://github.com/ec437/concourse/releases/download/v${concourse_version}/fly-${concourse_version}-darwin-amd64.tgz \
+#         -o /usr/local/concourse/fly-assets/fly-darwin-amd64.tgz && \
+#      curl -sL https://github.com/ec437/concourse/releases/download/v${concourse_version}/fly-${concourse_version}-linux-amd64.tgz \
+#         -o /usr/local/concourse/fly-assets/fly-linux-amd64.tgz && \
+#      curl -sL https://github.com/ec437/concourse/releases/download/v${concourse_version}/fly-${concourse_version}-windows-amd64.zip \
+#         -o /usr/local/concourse/fly-assets/fly-windows-amd64.zip
 
 STOPSIGNAL SIGUSR2
 
